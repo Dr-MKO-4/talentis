@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Rocket, CheckCircle2, Circle, FileSignature, Plus, UserCheck } from 'lucide-react';
+import { ymd } from '../../demo/rules';
 import { act, Dialog, Empty, Field, fmtDate, Note, PageHeader, Panel, Pill, Spinner, useApi, useEmployees } from './ui';
 
 const CAT: Record<string, string> = { Administrative: 'Administratif', IT: 'Informatique', Training: 'Formation', Manager: 'Manager', HR: 'RH', Other: 'Autre' };
@@ -19,7 +20,7 @@ const OnboardingPage: React.FC = () => {
     return g;
   }, [plan]);
   const without = (emps.data?.items ?? []).filter((e) => !['Resigned', 'Terminated'].includes(e.status) && !(plans.data ?? []).some((p) => p.employeeId === e.id));
-  const today = new Date().toISOString().slice(0, 10);
+  const today = ymd(new Date());
 
   return (
     <div className="min-h-full bg-gray-50">

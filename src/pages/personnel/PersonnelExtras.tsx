@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { AlertCircle, ArrowLeft, Building2, UserPlus, ChevronDown, ChevronRight } from 'lucide-react';
 import { usePersonnelStore } from '../../store/slices/personnelStore';
 import type { ContractType, CreateEmployeeDto, OrgChartNode, WorkMode } from '../../types/personnel';
+import { ymd } from '../../demo/rules';
 import { Field, fmtDate, PageHeader, Panel, Pill, Spinner } from '../modules/ui';
 
 const Back: React.FC = () => {
@@ -82,7 +83,7 @@ export const NewEmployeePage: React.FC = () => {
   const navigate = useNavigate();
   const { references, fetchReferences, createEmployee, isCreating } = usePersonnelStore();
   useEffect(() => { fetchReferences('co-1'); }, []);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = ymd(new Date());
   const [f, setF] = useState<any>({ firstName: '', lastName: '', gender: 'Female', dateOfBirth: '1996-04-12', professionalEmail: '', personalEmail: '', professionalPhone: '', departmentId: '', jobPositionId: '', siteId: 's-dla', managerId: '', contractType: 'CDI', hireDate: today, trialPeriodEndDate: '', contractEndDate: '', weeklyHours: 40, workMode: 'OnSite', baseSalary: 500000 });
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
   const jobs = (references?.jobPositions ?? []).filter((j) => !f.departmentId || j.departmentId === f.departmentId);
