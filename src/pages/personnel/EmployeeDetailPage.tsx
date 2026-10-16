@@ -87,7 +87,7 @@ const AvatarLarge: React.FC<{ name: string; photoUrl?: string; onUpload?: (f: Fi
       {onUpload && (
         <button
           onClick={() => ref.current?.click()}
-          className="absolute inset-0 rounded-2xl bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label="Changer la photo" className="absolute inset-0 rounded-2xl bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
         >
           <Upload className="w-6 h-6 text-white" />
         </button>
@@ -99,7 +99,7 @@ const AvatarLarge: React.FC<{ name: string; photoUrl?: string; onUpload?: (f: Fi
 };
 
 // =============================================================================
-// PAGE PRINCIPALE — FICHE EMPLOYÉ
+// PAGE PRINCIPALE · FICHE EMPLOYÉ
 // =============================================================================
 const EmployeeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -137,17 +137,17 @@ const EmployeeDetailPage: React.FC = () => {
   const seniority = emp.seniority;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-full bg-gray-50">
       {/* ---------------------------------------------------------------- */}
       {/* HEADER */}
       {/* ---------------------------------------------------------------- */}
       <div className="bg-white border-b border-gray-200">
         <div className="px-6 py-4">
-          <div className="flex items-center gap-4 mb-4">
-            <button onClick={() => navigate('/personnel')} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+          <div className="flex items-start sm:items-center gap-4 mb-4 flex-wrap">
+            <button onClick={() => navigate('/personnel')} aria-label="Retour à la liste" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
               <ArrowLeft className="w-5 h-5 text-gray-500" />
             </button>
-            <div className="flex items-center gap-4 flex-1">
+            <div className="flex items-center gap-4 flex-1 min-w-0 flex-wrap">
               <AvatarLarge
                 name={emp.firstName + ' ' + emp.lastName}
                 photoUrl={emp.photoUrl}
@@ -162,7 +162,7 @@ const EmployeeDetailPage: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-gray-600 mt-0.5">{emp.jobTitle} · {emp.departmentName}</p>
-                <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
+                <div className="flex items-center gap-x-3 gap-y-1 mt-1 text-xs text-gray-400 flex-wrap">
                   <span className="font-mono bg-gray-100 px-2 py-0.5 rounded">{emp.employeeNumber}</span>
                   <span>·</span>
                   <span>{emp.companyName}</span>
@@ -229,7 +229,7 @@ const EmployeeDetailPage: React.FC = () => {
                   <InfoField label="Date de naissance" value={emp.dateOfBirth ? new Date(emp.dateOfBirth).toLocaleDateString('fr-FR') : undefined} />
                   <InfoField label="Nationalité" value={emp.nationality} />
                   <InfoField label="N° d'identité" value={emp.nationalId} mono />
-                  <InfoField label="Numéro de SS" value={emp.socialSecurityNumber} mono />
+                  <InfoField label="Numéro de SS" value={(emp as any).socialSecurityNumber} mono />
                   <InfoField label="Langue préférée" value={emp.preferredLanguage?.toUpperCase()} />
                 </div>
               </SectionCard>
@@ -433,21 +433,27 @@ const EmployeeDetailPage: React.FC = () => {
                             <span className={`text-xs ${new Date(doc.expiryDate) < new Date() ? 'text-red-600' : 'text-gray-500'}`}>
                               {new Date(doc.expiryDate).toLocaleDateString('fr-FR')}
                             </span>
-                          ) : <span className="text-gray-300 text-xs">—</span>}
+                          ) : <span className="text-gray-300 text-xs">·</span>}
                         </td>
                         <td className="px-4 py-3 text-gray-400 text-xs">
                           {new Date(doc.createdAt).toLocaleDateString('fr-FR')}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex justify-end gap-1">
-                            <a
-                              href={employeeService.downloadDocument(emp.id, doc.id)}
-                              target="_blank" rel="noopener noreferrer"
+                            {/* Démo : le fichier est généré localement au lieu de GET /documents/{id}/download */}
+                            <button
+                              onClick={() => {
+                                const blob = new Blob([`Document fictif de démonstration
+${doc.fileName}
+${emp.firstName} ${emp.lastName} (${emp.employeeNumber})
+URL réelle : ${employeeService.downloadDocument(emp.id, doc.id).replace(/^undefined/, '')}`], { type: 'text/plain' });
+                                const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = doc.fileName.replace(/\.\w+$/, '') + '_demo.txt'; a.click(); URL.revokeObjectURL(a.href);
+                              }}
                               className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
-                              title="Télécharger"
+                              title="Télécharger" aria-label={`Télécharger ${doc.fileName}`}
                             >
                               <Download className="w-4 h-4" />
-                            </a>
+                            </button>
                             <button
                               onClick={() => id && deleteDocument(id, doc.id)}
                               className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
@@ -567,7 +573,7 @@ const EmployeeDetailPage: React.FC = () => {
                   {emp.status === 'Terminated' || emp.status === 'Resigned' ? (
                     <button
                       onClick={async () => {
-                        if (id && window.confirm('⚠️ Anonymisation IRRÉVERSIBLE. Confirmer ?')) {
+                        if (id && window.confirm('Anonymisation IRRÉVERSIBLE. Confirmer ?')) {
                           await gdprAnonymize(id);
                           navigate('/personnel');
                         }
@@ -575,7 +581,7 @@ const EmployeeDetailPage: React.FC = () => {
                       className="w-full flex items-center gap-2 px-4 py-3 bg-red-50 text-red-600 rounded-xl text-sm hover:bg-red-100 transition-colors border border-red-200"
                     >
                       <Shield className="w-4 h-4" />
-                      Anonymiser les données (Droit à l'oubli) — Irréversible
+                      Anonymiser les données (Droit à l'oubli) · Irréversible
                     </button>
                   ) : (
                     <div className="px-4 py-3 bg-gray-50 text-gray-400 rounded-xl text-xs">

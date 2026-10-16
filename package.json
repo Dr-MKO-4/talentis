@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview --port 4174 --strictPort"
+    "preview": "vite preview --port 47613 --strictPort"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.1.0",

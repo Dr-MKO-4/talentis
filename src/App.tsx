@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation, Link } from 'react-router-dom';
+import { DashboardPage as FullDashboardPage } from './pages/dashboard/DashboardPage';
+import { DemoBanner, DemoLoginHint } from './demo/DemoUi';
 import {
   Users, LayoutDashboard, DollarSign, Target, FlaskConical, Video,
   Rocket, Clock, BookOpen, BarChart3, Globe, TrendingUp, Heart,
@@ -12,6 +14,18 @@ import {
 // =============================================================================
 const EmployeesPage     = React.lazy(() => import('./pages/personnel/EmployeesPage'));
 const EmployeeDetailPage = React.lazy(() => import('./pages/personnel/EmployeeDetailPage'));
+// Démo : écrans construits sur les endpoints des contrôleurs existants
+const PayrollPage      = React.lazy(() => import('./pages/modules/PayrollPage'));
+const RecruitmentPage  = React.lazy(() => import('./pages/modules/RecruitmentPage'));
+const AttendancePage   = React.lazy(() => import('./pages/modules/AttendancePage'));
+const TrainingPage     = React.lazy(() => import('./pages/modules/TrainingPage'));
+const PerformancePage  = React.lazy(() => import('./pages/modules/PerformancePage'));
+const OnboardingPage   = React.lazy(() => import('./pages/modules/OnboardingPage'));
+const TestsPage        = React.lazy(() => import('./pages/modules/TestsPage'));
+const InterviewsPage   = React.lazy(() => import('./pages/modules/InterviewsPage'));
+const AlertsPage       = React.lazy(() => import('./pages/personnel/PersonnelExtras').then((m) => ({ default: m.AlertsPage })));
+const OrgChartPage     = React.lazy(() => import('./pages/personnel/PersonnelExtras').then((m) => ({ default: m.OrgChartPage })));
+const NewEmployeePage  = React.lazy(() => import('./pages/personnel/PersonnelExtras').then((m) => ({ default: m.NewEmployeePage })));
 
 // =============================================================================
 // AUTH STORE (simplifié - à remplacer par le vrai authStore)
@@ -90,15 +104,15 @@ const Sidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, o
         <div className="px-5 py-5 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-sm">
-                <Building2 className="w-5 h-5 text-white" />
+              <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-sm ring-1 ring-gray-100">
+                <img src="/logo.webp" alt="" className="w-8 h-8 object-contain" />
               </div>
               <div>
                 <p className="font-bold text-gray-900 text-base leading-tight">TALENTIS</p>
                 <p className="text-xs text-gray-400 leading-tight">People. Performance. Progress.</p>
               </div>
             </div>
-            <button onClick={onClose} className="lg:hidden p-1.5 hover:bg-gray-100 rounded-lg">
+            <button onClick={onClose} aria-label="Fermer le menu" className="lg:hidden p-1.5 hover:bg-gray-100 rounded-lg">
               <X className="w-4 h-4 text-gray-500" />
             </button>
           </div>
@@ -143,7 +157,7 @@ const Sidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, o
               <p className="text-sm font-semibold text-gray-800 truncate">{user?.fullName || 'Utilisateur'}</p>
               <p className="text-xs text-gray-400 truncate">{user?.role || ''}</p>
             </div>
-            <button onClick={logout} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
+            <button onClick={logout} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all" aria-label="Se déconnecter">
               <LogOut className="w-4 h-4" />
             </button>
           </div>
@@ -159,16 +173,16 @@ const Sidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, o
 const Topbar: React.FC<{ onMenuClick: () => void }> = ({ onMenuClick }) => {
   return (
     <header className="h-14 bg-white border-b border-gray-100 flex items-center px-4 gap-4 sticky top-0 z-30">
-      <button onClick={onMenuClick} className="p-2 hover:bg-gray-100 rounded-lg lg:hidden">
+      <button onClick={onMenuClick} aria-label="Ouvrir le menu" className="p-2 hover:bg-gray-100 rounded-lg lg:hidden">
         <Menu className="w-5 h-5 text-gray-600" />
       </button>
       <div className="flex-1" />
       <div className="flex items-center gap-2">
-        <button className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors">
+        <button aria-label="Notifications" className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors">
           <Bell className="w-5 h-5" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
         </button>
-        <button className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors">
+        <button aria-label="Paramètres" className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors">
           <Settings className="w-5 h-5" />
         </button>
       </div>
@@ -185,7 +199,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex-1 flex flex-col overflow-hidden lg:ml-64">
+      <div className="flex-1 flex flex-col overflow-hidden lg:ml-64 min-w-0">
+        <DemoBanner />
         <Topbar onMenuClick={() => setSidebarOpen(true)} />
         <main className="flex-1 overflow-y-auto">
           <React.Suspense fallback={
@@ -207,8 +222,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('rh@exemple.org');
+  const [password, setPassword] = useState('demo');
   const [mfaCode, setMfaCode] = useState('');
   const [requiresMfa, setRequiresMfa] = useState(false);
   const [error, setError] = useState('');
@@ -258,8 +273,8 @@ const LoginPage: React.FC = () => {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <Building2 className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg ring-1 ring-gray-100">
+            <img src="/logo.webp" alt="Logo Talentis" className="w-14 h-14 object-contain" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">TALENTIS</h1>
           <p className="text-gray-500 mt-1">People. Performance. Progress.</p>
@@ -285,7 +300,7 @@ const LoginPage: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Email professionnel</label>
                   <input
                     type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                    placeholder="vous@entreprise.com" required
+                    placeholder="vous@exemple.org" aria-label="Email professionnel" required
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-colors"
                   />
                 </div>
@@ -293,7 +308,7 @@ const LoginPage: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Mot de passe</label>
                   <input
                     type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••" required
+                    placeholder="••••••••" aria-label="Mot de passe" required
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-colors"
                   />
                 </div>
@@ -312,13 +327,13 @@ const LoginPage: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Code MFA</label>
                   <input
                     type="text" value={mfaCode} onChange={(e) => setMfaCode(e.target.value)}
-                    placeholder="123456" maxLength={6} pattern="[0-9]{6}" required
+                    placeholder="123456" aria-label="Code MFA" maxLength={6} pattern="[0-9]{6}" required
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-center font-mono text-xl tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 <button type="button" onClick={() => setRequiresMfa(false)}
                   className="mt-2 text-sm text-gray-400 hover:text-gray-600">
-                  ← Retour
+                  Retour
                 </button>
               </div>
             )}
@@ -337,8 +352,9 @@ const LoginPage: React.FC = () => {
           </form>
         </div>
 
+        <DemoLoginHint />
         <p className="text-center text-xs text-gray-400 mt-6">
-          © {new Date().getFullYear()} TALENTIS — Tous droits réservés
+          © {new Date().getFullYear()} TALENTIS · Démo · données simulées
         </p>
       </div>
     </div>
@@ -361,10 +377,10 @@ const DashboardPage: React.FC = () => (
     </div>
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {[
-        { label: 'Employés actifs', value: '—', color: 'bg-blue-50 text-blue-600' },
-        { label: 'Recrutements en cours', value: '—', color: 'bg-orange-50 text-orange-600' },
-        { label: 'Formations ce mois', value: '—', color: 'bg-teal-50 text-teal-600' },
-        { label: 'Alertes', value: '—', color: 'bg-red-50 text-red-600' },
+        { label: 'Employés actifs', value: '·', color: 'bg-blue-50 text-blue-600' },
+        { label: 'Recrutements en cours', value: '·', color: 'bg-orange-50 text-orange-600' },
+        { label: 'Formations ce mois', value: '·', color: 'bg-teal-50 text-teal-600' },
+        { label: 'Alertes', value: '·', color: 'bg-red-50 text-red-600' },
       ].map((card) => (
         <div key={card.label} className={`${card.color} rounded-xl p-4`}>
           <p className="text-2xl font-bold">{card.value}</p>
@@ -383,8 +399,8 @@ const DashboardPage: React.FC = () => (
 const ComingSoon: React.FC<{ module: string }> = ({ module }) => (
   <div className="p-6 flex flex-col items-center justify-center min-h-[60vh] text-gray-300">
     <Building2 className="w-16 h-16 mb-4" />
-    <h2 className="text-xl font-semibold text-gray-400">Module {module}</h2>
-    <p className="text-sm text-gray-400 mt-2">Ce module sera développé dans une prochaine étape</p>
+    <h2 className="text-xl font-semibold text-gray-500">Module {module}</h2>
+    <p className="text-sm text-gray-500 mt-2 text-center max-w-md">Ce module sera développé dans une prochaine étape : il n'existe encore dans le code qu'à l'état de squelette, la démo le montre donc tel quel.</p>
   </div>
 );
 
@@ -396,29 +412,29 @@ const App: React.FC = () => {
     <Routes>
       {/* Auth */}
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/forgot-password" element={<ComingSoon module="Forgot Password" />} />
+      <Route path="/forgot-password" element={<ComingSoon module="Mot de passe oublié" />} />
 
       {/* App protégée */}
-      <Route path="/" element={<ProtectedRoute><AppLayout><DashboardPage /></AppLayout></ProtectedRoute>} />
-      <Route path="/dashboard" element={<ProtectedRoute><AppLayout><DashboardPage /></AppLayout></ProtectedRoute>} />
+      <Route path="/" element={<ProtectedRoute><AppLayout><div className="p-4 sm:p-6"><FullDashboardPage /></div></AppLayout></ProtectedRoute>} />
+      <Route path="/dashboard" element={<ProtectedRoute><AppLayout><div className="p-4 sm:p-6"><FullDashboardPage /></div></AppLayout></ProtectedRoute>} />
 
       {/* MODULE 1 - Personnel */}
       <Route path="/personnel" element={<ProtectedRoute><AppLayout><EmployeesPage /></AppLayout></ProtectedRoute>} />
-      <Route path="/personnel/new" element={<ProtectedRoute><AppLayout><ComingSoon module="Créer Employé" /></AppLayout></ProtectedRoute>} />
-      <Route path="/personnel/orgchart" element={<ProtectedRoute><AppLayout><ComingSoon module="Organigramme" /></AppLayout></ProtectedRoute>} />
-      <Route path="/personnel/alerts" element={<ProtectedRoute><AppLayout><ComingSoon module="Alertes" /></AppLayout></ProtectedRoute>} />
+      <Route path="/personnel/new" element={<ProtectedRoute><AppLayout><NewEmployeePage /></AppLayout></ProtectedRoute>} />
+      <Route path="/personnel/orgchart" element={<ProtectedRoute><AppLayout><OrgChartPage /></AppLayout></ProtectedRoute>} />
+      <Route path="/personnel/alerts" element={<ProtectedRoute><AppLayout><AlertsPage /></AppLayout></ProtectedRoute>} />
       <Route path="/personnel/:id" element={<ProtectedRoute><AppLayout><EmployeeDetailPage /></AppLayout></ProtectedRoute>} />
       <Route path="/personnel/:id/edit" element={<ProtectedRoute><AppLayout><ComingSoon module="Modifier Employé" /></AppLayout></ProtectedRoute>} />
 
       {/* Autres modules */}
-      <Route path="/payroll/*" element={<ProtectedRoute><AppLayout><ComingSoon module="Paie" /></AppLayout></ProtectedRoute>} />
-      <Route path="/recruitment/*" element={<ProtectedRoute><AppLayout><ComingSoon module="Recrutement" /></AppLayout></ProtectedRoute>} />
-      <Route path="/testing/*" element={<ProtectedRoute><AppLayout><ComingSoon module="Tests" /></AppLayout></ProtectedRoute>} />
-      <Route path="/interviews/*" element={<ProtectedRoute><AppLayout><ComingSoon module="Entretiens" /></AppLayout></ProtectedRoute>} />
-      <Route path="/onboarding/*" element={<ProtectedRoute><AppLayout><ComingSoon module="Onboarding" /></AppLayout></ProtectedRoute>} />
-      <Route path="/time-attendance/*" element={<ProtectedRoute><AppLayout><ComingSoon module="Temps" /></AppLayout></ProtectedRoute>} />
-      <Route path="/training/*" element={<ProtectedRoute><AppLayout><ComingSoon module="Formation" /></AppLayout></ProtectedRoute>} />
-      <Route path="/performance/*" element={<ProtectedRoute><AppLayout><ComingSoon module="Performance" /></AppLayout></ProtectedRoute>} />
+      <Route path="/payroll/*" element={<ProtectedRoute><AppLayout><PayrollPage /></AppLayout></ProtectedRoute>} />
+      <Route path="/recruitment/*" element={<ProtectedRoute><AppLayout><RecruitmentPage /></AppLayout></ProtectedRoute>} />
+      <Route path="/testing/*" element={<ProtectedRoute><AppLayout><TestsPage /></AppLayout></ProtectedRoute>} />
+      <Route path="/interviews/*" element={<ProtectedRoute><AppLayout><InterviewsPage /></AppLayout></ProtectedRoute>} />
+      <Route path="/onboarding/*" element={<ProtectedRoute><AppLayout><OnboardingPage /></AppLayout></ProtectedRoute>} />
+      <Route path="/time-attendance/*" element={<ProtectedRoute><AppLayout><AttendancePage /></AppLayout></ProtectedRoute>} />
+      <Route path="/training/*" element={<ProtectedRoute><AppLayout><TrainingPage /></AppLayout></ProtectedRoute>} />
+      <Route path="/performance/*" element={<ProtectedRoute><AppLayout><PerformancePage /></AppLayout></ProtectedRoute>} />
       <Route path="/mobility/*" element={<ProtectedRoute><AppLayout><ComingSoon module="Mobilité" /></AppLayout></ProtectedRoute>} />
       <Route path="/reporting/*" element={<ProtectedRoute><AppLayout><ComingSoon module="Reporting" /></AppLayout></ProtectedRoute>} />
       <Route path="/engagement/*" element={<ProtectedRoute><AppLayout><ComingSoon module="Engagement" /></AppLayout></ProtectedRoute>} />

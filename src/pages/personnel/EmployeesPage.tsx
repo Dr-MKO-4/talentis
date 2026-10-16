@@ -64,7 +64,7 @@ const Avatar: React.FC<{ name: string; photoUrl?: string; size?: 'sm' | 'md' }> 
 };
 
 // =============================================================================
-// PAGE PRINCIPALE — LISTE EMPLOYÉS
+// PAGE PRINCIPALE · LISTE EMPLOYÉS
 // =============================================================================
 const EmployeesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -107,12 +107,12 @@ const EmployeesPage: React.FC = () => {
   const totalAlerts = (alerts?.expiringContracts.length || 0) + (alerts?.expiringTrialPeriods.length || 0);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-full bg-gray-50">
       {/* ---------------------------------------------------------------- */}
       {/* HEADER */}
       {/* ---------------------------------------------------------------- */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
+      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
               <Users className="w-5 h-5 text-white" />
@@ -124,7 +124,7 @@ const EmployeesPage: React.FC = () => {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {totalAlerts > 0 && (
               <button
                 onClick={() => navigate('/personnel/alerts')}
@@ -152,19 +152,19 @@ const EmployeesPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="px-6 py-4 space-y-4">
+      <div className="px-4 sm:px-6 py-4 space-y-4">
         {/* ---------------------------------------------------------------- */}
         {/* BARRE DE RECHERCHE + ACTIONS */}
         {/* ---------------------------------------------------------------- */}
         <div className="flex gap-3 flex-wrap">
-          <div className="flex-1 min-w-[280px] relative">
+          <div className="flex-1 min-w-[240px] relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Rechercher par nom, email, matricule, poste..."
+              placeholder="Rechercher par nom, email, matricule, poste..." aria-label="Rechercher un collaborateur"
               className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -360,7 +360,7 @@ const EmployeesPage: React.FC = () => {
                           <span className="ml-1 text-gray-400">({emp.seniority} an{emp.seniority > 1 ? 's' : ''})</span>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                             <button
                               onClick={() => navigate(`/personnel/${emp.id}`)}
                               className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
